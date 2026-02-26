@@ -13,7 +13,7 @@ Plataforma digital que conecta **voluntários** a **idosos** e **instituições*
 | **Autenticação** | JWT (golang-jwt) |
 | **ORM** | GORM |
 | **Frontend (consumidor)** | React Native (iOS/Android) + React Web |
-
+env.example .env
 ## Início Rápido
 
 ### Pré-requisitos
@@ -32,7 +32,7 @@ cd amigos-terceira-idade
 ### 2. Configure as variáveis de ambiente
 
 ```bash
-cp env.example .env
+cp 
 # Edite o arquivo .env conforme necessário
 ```
 
