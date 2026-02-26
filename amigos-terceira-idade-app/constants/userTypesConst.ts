@@ -1,0 +1,5 @@
+export const USER_TYPES = {
+  VOLUNTARIO: 'VOLUNTEER',
+  IDOSO: 'ELDERLY',
+  INSTITUICAO: 'INSTITUTION',
+} as const;

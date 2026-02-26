@@ -1,0 +1,51 @@
+# Docker Compose para desenvolvimento local
+# Sobe o SQL Server/Azure SQL Edge e a aplicação Go
+# NOTA: Em Macs com chip Apple Silicon (M1/M2/M3), usa Azure SQL Edge
+
+services:
+  sqlserver:
+    # Imagem oficial da Microsoft para SQL Server 2022 (otimizada para x64/Windows)
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: amigos-sqlserver
+    user: root # Garante permissão para criar pastas no volume do Windows
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=YourStrong@Passw0rd
+      - MSSQL_PID=Developer # Define a edição (Developer é gratuita para dev)
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    healthcheck:
+      # No SQL 2022, o caminho do sqlcmd mudou ligeiramente
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'YourStrong@Passw0rd' -Q 'SELECT 1' -b -o /dev/null || exit 1"]
+      interval: 20s # SQL Server padrão demora um pouco mais para subir que o Edge
+      timeout: 10s
+      retries: 10
+      start_period: 40s
+
+  # Aplicação Go (opcional - pode rodar localmente)
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: amigos-api
+    environment:
+      - SERVER_PORT=8080
+      - GIN_MODE=debug
+      - DB_HOST=sqlserver
+      - DB_PORT=1433
+      - DB_USER=sa
+      - DB_PASSWORD=YourStrong@Passw0rd
+      - DB_NAME=amigos_terceira_idade
+      - JWT_SECRET=sua-chave-secreta-aqui-mude-em-producao
+    ports:
+      - "8080:8080"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  sqlserver_data:
+    driver: local
